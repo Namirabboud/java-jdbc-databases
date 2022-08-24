@@ -31,10 +31,10 @@ public class UpdateOrderDao {
     public int updateOrderStatus(ParamsDto paramsDto) {
         int numberResults = 0;
 
-        try (Connection con = null;
+        try (Connection con = this.database.getConnection();
              PreparedStatement ps = createPreparedStatement(con, paramsDto)
         ) {
-
+            numberResults = executeUpdate(ps);
         } catch (SQLException ex) {
             ExceptionHandler.handleException(ex);
         }
@@ -50,7 +50,19 @@ public class UpdateOrderDao {
      * @throws SQLException In case of an error
      */
     private PreparedStatement createPreparedStatement(Connection con, ParamsDto paramsDto) throws SQLException {
+        PreparedStatement statement = con.prepareStatement(this.query);
+        statement.setString(1, paramsDto.getStatus());
+        statement.setLong(2, paramsDto.getOrderId());
+        return statement;
+    }
 
-        return null;
+    /**
+     *
+     * @param ps PreparedStatement
+     * @return number of updated columns
+     * @throws SQLException in case of an error
+     */
+    private int executeUpdate(PreparedStatement ps) throws SQLException {
+        return ps.executeUpdate();
     }
 }
