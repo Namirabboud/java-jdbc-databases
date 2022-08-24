@@ -63,7 +63,6 @@ public class Database {
             initializeDatabase(connection);
             isInitialized = true;
         }
-
         return connection;
     }
 }

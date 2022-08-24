@@ -33,13 +33,13 @@ public class GetOrderDao {
     public OrderDto getOrderById(ParamsDto paramsDto) {
         OrderDto orderDto = null;
 
-        try (Connection con = Database.getInstance().getConnection();
+        try (Connection con = this.database.getConnection();
              PreparedStatement ps = createPreparedStatement(con, paramsDto.getOrderId());
              ResultSet rs = createResultSet(ps)
         ) {
             while (rs.next()) {
                 OrderDto order = new OrderDto();
-                order.setOrderId(rs.getInt("id"));
+                order.setOrderId(rs.getLong("order_id"));
                 order.setCustomerId(rs.getLong("order_customer_id"));
                 order.setDate(rs.getDate("order_date"));
                 order.setStatus(rs.getString("order_status"));
@@ -61,7 +61,7 @@ public class GetOrderDao {
      */
     private PreparedStatement createPreparedStatement(Connection con, long orderId) throws SQLException {
         PreparedStatement statement = con.prepareStatement(this.query);
-        statement.setString(1, String.valueOf(orderId));
+        statement.setLong(1, orderId);
         return statement;
     }
 
