@@ -7,7 +7,9 @@ import com.pluralsight.order.util.ExceptionHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * DAO to delete an order
@@ -31,10 +33,10 @@ public class DeleteOrderDao {
     public int deleteOrdersById(ParamsDto paramsDto) {
         int numberResults = 0;
 
-        try (Connection con = null;
+        try (Connection con = this.database.getConnection();
              PreparedStatement ps = createPreparedStatement(con, paramsDto.getOrderIds())
         ) {
-
+            numberResults = ps.executeUpdate();
         } catch (SQLException ex) {
             ExceptionHandler.handleException(ex);
         }
@@ -48,7 +50,8 @@ public class DeleteOrderDao {
      * @return Delete SQL statement
      */
     private String buildDeleteSql(List<Long> orderIds) {
-        String ids = null;
+        List<String> questionMarkCollection = Collections.nCopies(orderIds.size(), "?");
+        String ids = String.join(",", questionMarkCollection);
 
         return "DELETE FROM orders o WHERE o.order_id IN (" + ids + ")";
     }
@@ -62,7 +65,11 @@ public class DeleteOrderDao {
      */
     private PreparedStatement createPreparedStatement(Connection con, List<Long> orderIds) throws SQLException {
         String sql = buildDeleteSql(orderIds);
-        PreparedStatement ps = null;
+        PreparedStatement ps = con.prepareStatement(sql);
+        ListIterator<Long> iterator = orderIds.listIterator();
+        while (iterator.hasNext()) {
+            ps.setLong(iterator.nextIndex() + 1, iterator.next());
+        }
 
         return ps;
     }
