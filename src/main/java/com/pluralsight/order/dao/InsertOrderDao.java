@@ -49,6 +49,7 @@ public class InsertOrderDao {
                     if(!result.next()){
                         con.rollback();
                     } else {
+                        orderId = result.getLong("order_id");
                         System.out.println("orderID: " + orderId);
 
                         for (OrderDetailDto orderDetailDto : orderDto.getOrderDetail()) {
